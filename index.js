@@ -45,13 +45,13 @@ const createRequestPRData = (prs) => {
                     text: {
                         type: "mrkdwn",
                         text: `• <${url}|${encodeText(title)}>${
-                            labels.some(({ name }) => name === D3) ? " *[D-3️⃣]*" : ""
+                            labels.some(({ name }) => name === D3) ? " *[${D3}]*" : ""
                         }${
-                            labels.some(({ name }) => name === D2) ? " *[D-2️⃣]*" : ""
+                            labels.some(({ name }) => name === D2) ? " *[${D2}]*" : ""
                         }${
-                            labels.some(({ name }) => name === D1) ? " *[D-1️⃣]*" : ""
+                            labels.some(({ name }) => name === D1) ? " *[${D1}]*" : ""
                         }${
-                            labels.some(({ name }) => name === D0) ? " *[D-0️⃣]*🚨 지금 바로 리뷰에 참여해 주세요.🚨" : ""
+                            labels.some(({ name }) => name === D0) ? " *[${D0}]* 🚨 지금 바로 리뷰에 참여해 주세요.🚨" : ""
                         }`
                     }
                 }))
