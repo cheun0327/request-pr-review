@@ -75,26 +75,39 @@ const refineToApiUrl = repoUrl => {
 
 (async () => {
     try {
+        // ✅ repoUrls를 개별 URL 배열로 변환
         const repoUrls = core.getInput("repoUrls").split(",").map(url => url.trim());
-        core.info(repoUrls);
+        core.info(`Fetching PRs for: ${repoUrls.join(", ")}`);  // ✅ 디버깅용 로그 추가
+    
         let allPRs = [];
-
+    
         for (const repoUrl of repoUrls) {
-            core.info(repoUrl);
-            const BASE_API_URL = refineToApiUrl(core.getInput("repoUrl"));
-            core.info(`Fetching PRs for: ${BASE_API_URL}`);
-
-            const pulls = await authFetch(`${BASE_API_URL}/pulls`);
-            core.info(`Found ${pulls.length} PRs for ${core.getInput("repoUrl")}`);
-
-            allPRs = allPRs.concat(
-                pulls.map(pull => ({
-                    repo: core.getInput("repoUrl").split("/").slice(-1)[0],
-                    title: pull.title,
-                    url: pull.html_url,
-                    labels: pull.labels
-                }))
-            );
+            core.info(`Processing repo: ${repoUrl}`);
+    
+            // ✅ 각 repoUrl에 대해 올바른 API URL 변환
+            const BASE_API_URL = refineToApiUrl(repoUrl);
+            core.info(`Fetching PRs from: ${BASE_API_URL}`);
+    
+            try {
+                // ✅ 개별 레포지토리의 PR 목록 가져오기
+                const pulls = await authFetch(`${BASE_API_URL}/pulls`);
+                core.info(`Found ${pulls.length} PRs for ${repoUrl}`);
+    
+                // ✅ repo 이름을 올바르게 추출
+                const repoName = repoUrl.split("/").slice(-1)[0];
+    
+                // ✅ PR 목록을 저장
+                allPRs = allPRs.concat(
+                    pulls.map(pull => ({
+                        repo: repoName,  // ✅ 각 PR이 속한 레포지토리 이름 저장
+                        title: pull.title,
+                        url: pull.html_url,
+                        labels: pull.labels
+                    }))
+                );
+            } catch (fetchError) {
+                core.warning(`⚠️ Failed to fetch PRs for ${repoUrl}: ${fetchError.message}`);
+            }
         }
 
         if (allPRs.length > 0) {
