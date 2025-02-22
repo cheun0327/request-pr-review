@@ -40,7 +40,7 @@ const createRequestPRData = (prs) => {
                     type: "section",
                     text: {
                         type: "mrkdwn",
-                        text: `• <${url}|${encodeText(title)}>${
+                        text: `• <${url}|${encodeText(title)}> [${labels}]${
                             labels.some(({ name }) => name === D0) ? " 👈 PR은 긴급한 PR입니다. 🚨 지금 바로 리뷰에 참여해 주세요.🚨" : ""
                         }`
                     }
