@@ -6,6 +6,10 @@ const core = require("@actions/core");
 const axios = require("axios");
 
 const D0 = "D-0";
+const D1 = "D-1";
+const D2 = "D-2";
+const D3 = "D-3";
+
 const ENCODE_PAIR = { "<": "&lt;", ">": "&gt;" };
 const encodeText = text => text.replace(/[<>]/g, matched => ENCODE_PAIR[matched]);
 
@@ -40,8 +44,14 @@ const createRequestPRData = (prs) => {
                     type: "section",
                     text: {
                         type: "mrkdwn",
-                        text: `• <${url}|${encodeText(title)}> [${labels}]${
-                            labels.some(({ name }) => name === D0) ? " 👈 PR은 긴급한 PR입니다. 🚨 지금 바로 리뷰에 참여해 주세요.🚨" : ""
+                        text: `• <${url}|${encodeText(title)}>${
+                            labels.some(({ name }) => name === D3) ? " *[D-3️⃣]*" : ""
+                        }${
+                            labels.some(({ name }) => name === D2) ? " *[D-2️⃣]*" : ""
+                        }${
+                            labels.some(({ name }) => name === D1) ? " *[D-1️⃣]*" : ""
+                        }${
+                            labels.some(({ name }) => name === D0) ? " *[D-0️⃣]*🚨 지금 바로 리뷰에 참여해 주세요.🚨" : ""
                         }`
                     }
                 }))
