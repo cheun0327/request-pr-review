@@ -32,7 +32,7 @@ const createRequestPRData = (user) => ({
             type: "section",
             text: {
                 type: "mrkdwn",
-                text: `🙏 <@${user.name}> 님의 리뷰를 애타게 기다리는 동료의 PR이 있어요. 리뷰에 참여해 주세요:`
+                text: `🙏 <@${user.login}> 의 리뷰를 애타게 기다리는 동료의 PR이 있어요. 리뷰에 참여해 주세요:`
             }
         },
         {
@@ -226,11 +226,6 @@ const refineToApiUrl = repoUrl => {
         core.info("Starting sending messages...");
 
         await Promise.all(users.map(user => {
-            if (!user.name) {
-                core.warning(`'${user.login}' has no public email.`);
-                return;
-            }
-
             core.info(`Sending a message to ${user.name}...`);
 
             return sendSlack(user, createRequestPRData(user));
