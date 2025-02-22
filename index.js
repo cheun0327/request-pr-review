@@ -20,7 +20,6 @@ const authFetch = url => axios({
 
 // Slack 메시지 생성 함수
 const createRequestPRData = (prs) => {
-    // 리포지토리별 PR을 그룹화 (Map 사용)
     const repoGroups = new Map();
 
     prs.forEach(({ repo, title, url, labels }) => {
@@ -34,7 +33,7 @@ const createRequestPRData = (prs) => {
         text: "👋 좋은 아침입니다!\n🙏 리뷰를 애타게 기다리는 동료의 PR이 있어요. 리뷰에 참여해 주세요:",
         blocks: [
             {
-                type: "section", // ✅ 이 블록을 추가하여 텍스트를 강제로 출력
+                type: "section",
                 text: {
                     type: "mrkdwn",
                     text: "👋 좋은 아침입니다!\n🙏 리뷰를 애타게 기다리는 동료의 PR이 있어요. 리뷰에 참여해 주세요:"
@@ -53,7 +52,7 @@ const createRequestPRData = (prs) => {
                     text: {
                         type: "mrkdwn",
                         text: `• <${url}|${encodeText(title)}>${
-                            labels.some(({ name }) => name === D0) ? "\n\t☝️ PR은 \`${D0}\`로 긴급한 PR입니다. 🚨 지금 바로 리뷰에 참여해 주세요. 🚨" : ""
+                            labels.some(({ name }) => name === D0) ? "\n\t☝️ PR은 긴급한 PR입니다. 🚨 지금 바로 리뷰에 참여해 주세요. 🚨" : ""
                         }`
                     }
                 }))
@@ -109,12 +108,11 @@ const refineToApiUrl = repoUrl => {
             // PR 목록 가져오기
             const pulls = await authFetch(`${BASE_API_URL}/pulls`);
             core.info(`Found ${pulls.length} PRs for ${core.getInput("repoUrl")}`);
-            core.info(`Repo Name: ${core.getInput("repoUrl").replace(/\/$/, "").split("/").slice(-1)[0]}`);
 
             // PR 목록을 저장
             allPRs = allPRs.concat(
                 pulls.map(pull => ({
-                    repo: repoUrl.replace(/\/$/, "").split("/").slice(-1)[0],
+                    repo: core.getInput("repoUrl").replace(/\/$/, "").split("/").slice(-1)[0],
                     title: pull.title,
                     url: pull.html_url,
                     labels: pull.labels
