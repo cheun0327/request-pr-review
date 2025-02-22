@@ -106,7 +106,7 @@ const refineToApiUrl = repoUrl => {
             // PR 목록을 저장
             allPRs = allPRs.concat(
                 pulls.map(pull => ({
-                    repo: repoUrl.replace(/\/$/, "").split("/").slice(-1)[0];
+                    repo: repoUrl.replace(/\/$/, "").split("/").slice(-1)[0],
                     title: pull.title,
                     url: pull.html_url,
                     labels: pull.labels
