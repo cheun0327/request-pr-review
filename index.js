@@ -66,7 +66,7 @@ const sendSlack = (user, data) => axios({
     },
     url: "https://slack.com/api/chat.postMessage",
     data: {
-        channel: `@${user.name}`,
+        channel: "#lucy-test",
         ...data
     }
 });
