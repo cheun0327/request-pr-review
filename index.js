@@ -66,6 +66,7 @@ const sendSlack = async (data) => {
 (async () => {
     try {
         const repoUrls = core.getInput("repoUrls").split(",");
+        console.info(`Processing repositories: ${repoUrls.join(", ")}`);
         let allPRs = [];
 
         for (const repoUrl of repoUrls) {
