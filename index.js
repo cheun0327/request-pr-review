@@ -29,7 +29,7 @@ const createRequestPRData = (prs) => {
         blocks: [
             {
                 type: "section",
-                text: { type: "mrkdwn", text: "👋 좋은 아침입니다!\n리뷰를 애타게 기다리는 동료의 PR이 있어요. 리뷰에 참여해 주세요.😃\n" }
+                text: { type: "mrkdwn", text: "👋 좋은 아침입니다!\n리뷰를 애타게 기다리는 동료의 PR이 있어요. 리뷰에 참여해 주세요:" }
             },
             ...[...repoGroups.entries()].flatMap(([repo, prList]) => [
                 {
@@ -41,7 +41,7 @@ const createRequestPRData = (prs) => {
                     text: {
                         type: "mrkdwn",
                         text: `• <${url}|${encodeText(title)}>${
-                            labels.some(({ name }) => name === D0) ? "\n\t☝️ PR은 \`${D0}\`로 긴급한 PR입니다. 🚨 지금 바로 리뷰에 참여해 주세요. 🚨" : ""
+                            labels.some(({ name }) => name === D0) ? " 👈 PR은 긴급한 PR입니다. 🚨 지금 바로 리뷰에 참여해 주세요.🚨" : ""
                         }`
                     }
                 }))
@@ -75,20 +75,17 @@ const refineToApiUrl = repoUrl => {
 
 (async () => {
     try {
-        // ✅ 여러 개의 repoUrl을 한 번에 처리
         const repoUrls = core.getInput("repoUrls").split(",").map(url => url.trim());
         let allPRs = [];
 
         for (const url of repoUrls) {
-            const repoUrl = core.getInput("repoUrl")
+            const repoUrl = core.getInput("repoUrls")
             const BASE_API_URL = refineToApiUrl(repoUrl);
             core.info(`Fetching PRs for: ${BASE_API_URL}`);
 
-            // PR 목록 가져오기
             const pulls = await authFetch(`${BASE_API_URL}/pulls`);
             core.info(`Found ${pulls.length} PRs for ${repoUrl}`);
 
-            // PR 목록을 저장
             allPRs = allPRs.concat(
                 pulls.map(pull => ({
                     repo: repoUrl.split("/").slice(-1)[0],
@@ -99,11 +96,8 @@ const refineToApiUrl = repoUrl => {
             );
         }
 
-        // ✅ PR이 하나라도 존재하면 한 번만 Slack 메시지 전송
         if (allPRs.length > 0) {
             core.info("Sending Slack message with all PRs...");
-            const message = createRequestPRData(allPRs)
-            core.info(`Slack message\n${JSON.stringify(message, null, 2)}`);
             await sendSlack(createRequestPRData(allPRs));
         } else {
             core.info("No PRs found for review.");
