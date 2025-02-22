@@ -19,27 +19,42 @@ const authFetch = url => axios({
 }).then(res => res.data);
 
 // Slack 메시지 생성 함수
-const createRequestPRData = (prs) => ({
-    text: "📢 리뷰가 필요한 PR 목록입니다.",
-    blocks: [
-        {
-            type: "section",
-            text: {
-                type: "mrkdwn",
-                text: "👋 좋은 아침입니다. 현재 리뷰가 필요한 PR 목록입니다:"
-            }
-        },
-        ...prs.map(({ repo, title, url, labels }) => ({
-            type: "section",
-            text: {
-                type: "mrkdwn",
-                text: `• [${repo}] <${url}|${encodeText(title)}>${
-                    labels.some(({ name }) => name === D0) ? "\n\t🚨 *긴급 PR (D-0)* 🚨" : ""
-                }`
-            }
-        }))
-    ]
-});
+const createRequestPRData = (prs) => {
+    // 리포지토리별 PR을 그룹화 (Map 사용)
+    const repoGroups = new Map();
+
+    prs.forEach(({ repo, title, url, labels }) => {
+        if (!repoGroups.has(repo)) {
+            repoGroups.set(repo, []);
+        }
+        repoGroups.get(repo).push({ title, url, labels });
+    });
+
+    return {
+        text: "👋 좋은 아침입니다!\n🙏 리뷰를 애타게 기다리는 동료의 PR이 있어요. 리뷰에 참여해 주세요:",
+        blocks: [
+            ...[...repoGroups.entries()].flatMap(([repo, prList]) => [
+                {
+                    type: "section",
+                    text: {
+                        type: "mrkdwn",
+                        text: `*📌 ${repo}*`
+                    }
+                },
+                ...prList.map(({ title, url, labels }) => ({
+                    type: "section",
+                    text: {
+                        type: "mrkdwn",
+                        text: `• <${url}|${encodeText(title)}>${
+                            labels.some(({ name }) => name === D0) ? "\n\t☝️ 이 PR은 \`${D0}\`로 긴급한 PR입니다. 🚨 지금 바로 리뷰에 참여해 주세요. 🚨" : ""
+                        }`
+                    }
+                }))
+            ])
+        ]
+    };
+};
+
 
 // Slack 메시지 전송 함수
 const sendSlack = async (data) => {
@@ -56,8 +71,6 @@ const sendSlack = async (data) => {
                 ...data
             }
         });
-
-        core.info(`Slack Response: ${JSON.stringify(response.data, null, 2)}`);
     } catch (error) {
         core.setFailed(`Slack API Error: ${error.message}`);
     }
@@ -93,7 +106,7 @@ const refineToApiUrl = repoUrl => {
             // PR 목록을 저장
             allPRs = allPRs.concat(
                 pulls.map(pull => ({
-                    repo: repoUrl.split("/").pop(), // 리포지토리 이름 추출
+                    repo: repoUrl.replace(/\/$/, "").split("/").slice(-1)[0];
                     title: pull.title,
                     url: pull.html_url,
                     labels: pull.labels
