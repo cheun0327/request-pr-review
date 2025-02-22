@@ -51,7 +51,7 @@ const createRequestPRData = (prs) => {
                         }${
                             labels.some(({ name }) => name === D1) ? ` *\`${D1}\`*` : ""
                         }${
-                            labels.some(({ name }) => name === D0) ? ` *\`${D0}\`* 🚨 지금 바로 리뷰에 참여해 주세요.🚨` : ""
+                            labels.some(({ name }) => name === D0) ? ` *\`${D0}\`* 👈 지금 바로 리뷰에 참여해 주세요.🚨` : ""
                         }`
                     }
                 }))
