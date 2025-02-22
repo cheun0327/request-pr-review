@@ -76,9 +76,11 @@ const refineToApiUrl = repoUrl => {
 (async () => {
     try {
         const repoUrls = core.getInput("repoUrls").split(",").map(url => url.trim());
+        core.info(repoUrls);
         let allPRs = [];
 
         for (const repoUrl of repoUrls) {
+            core.info(repoUrl);
             const BASE_API_URL = refineToApiUrl(core.getInput("repoUrl"));
             core.info(`Fetching PRs for: ${BASE_API_URL}`);
 
