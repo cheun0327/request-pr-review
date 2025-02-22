@@ -102,6 +102,7 @@ const refineToApiUrl = repoUrl => {
             // PR 목록 가져오기
             const pulls = await authFetch(`${BASE_API_URL}/pulls`);
             core.info(`Found ${pulls.length} PRs for ${repoUrl}`);
+            core.info(`Repo Name: ${repoUrl.replace(/\/$/, "").split("/").slice(-1)[0]}`);
 
             // PR 목록을 저장
             allPRs = allPRs.concat(
