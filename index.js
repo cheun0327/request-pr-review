@@ -29,7 +29,7 @@ const createRequestPRData = (prs) => {
         blocks: [
             {
                 type: "section",
-                text: { type: "mrkdwn", text: "👋 좋은 아침입니다!\n🙏 리뷰를 애타게 기다리는 동료의 PR이 있어요. 리뷰에 참여해 주세요:" }
+                text: { type: "mrkdwn", text: "👋 좋은 아침입니다!\n리뷰를 애타게 기다리는 동료의 PR이 있어요. 리뷰에 참여해 주세요.😃\n" }
             },
             ...[...repoGroups.entries()].flatMap(([repo, prList]) => [
                 {
@@ -79,7 +79,8 @@ const refineToApiUrl = repoUrl => {
         const repoUrls = core.getInput("repoUrls").split(",").map(url => url.trim());
         let allPRs = [];
 
-        for (const repoUrl of repoUrls) {
+        for (const url of repoUrls) {
+            const repoUrl = core.getInput("repoUrl")
             const BASE_API_URL = refineToApiUrl(repoUrl);
             core.info(`Fetching PRs for: ${BASE_API_URL}`);
 
@@ -87,13 +88,10 @@ const refineToApiUrl = repoUrl => {
             const pulls = await authFetch(`${BASE_API_URL}/pulls`);
             core.info(`Found ${pulls.length} PRs for ${repoUrl}`);
 
-            // ✅ repo 이름을 올바르게 추출
-            const repoName = repoUrl.split("/").slice(-1)[0];
-
             // PR 목록을 저장
             allPRs = allPRs.concat(
                 pulls.map(pull => ({
-                    repo: repoName,  // ✅ 올바른 repo 이름 사용
+                    repo: repoUrl.split("/").slice(-1)[0],
                     title: pull.title,
                     url: pull.html_url,
                     labels: pull.labels
@@ -104,6 +102,8 @@ const refineToApiUrl = repoUrl => {
         // ✅ PR이 하나라도 존재하면 한 번만 Slack 메시지 전송
         if (allPRs.length > 0) {
             core.info("Sending Slack message with all PRs...");
+            const message = createRequestPRData(allPRs)
+            core.info(`Slack message\n${JSON.stringify(message, null, 2)}`);
             await sendSlack(createRequestPRData(allPRs));
         } else {
             core.info("No PRs found for review.");
