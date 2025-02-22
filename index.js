@@ -78,17 +78,16 @@ const refineToApiUrl = repoUrl => {
         const repoUrls = core.getInput("repoUrls").split(",").map(url => url.trim());
         let allPRs = [];
 
-        for (const url of repoUrls) {
-            const repoUrl = core.getInput("url")
-            const BASE_API_URL = refineToApiUrl(repoUrl);
+        for (const repoUrl of repoUrls) {
+            const BASE_API_URL = refineToApiUrl(core.getInput("repoUrl"));
             core.info(`Fetching PRs for: ${BASE_API_URL}`);
 
             const pulls = await authFetch(`${BASE_API_URL}/pulls`);
-            core.info(`Found ${pulls.length} PRs for ${repoUrl}`);
+            core.info(`Found ${pulls.length} PRs for ${core.getInput("repoUrl")}`);
 
             allPRs = allPRs.concat(
                 pulls.map(pull => ({
-                    repo: repoUrl.split("/").slice(-1)[0],
+                    repo: core.getInput("repoUrl").split("/").slice(-1)[0],
                     title: pull.title,
                     url: pull.html_url,
                     labels: pull.labels
