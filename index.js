@@ -63,14 +63,27 @@ const sendSlack = async (data) => {
     }
 };
 
+const refineToApiUrl = repoUrl => {
+    const enterprise = !repoUrl.includes("github.com");
+    const [host, pathname] = repoUrl
+        .replace(/^https?:\/\//, "")
+        .replace(/\/$/, "")
+        .split(/\/(.*)/); // github.com/abc/def -> ['github.com', 'abc/def', '']
+
+    if (enterprise) {
+        return `https://${host}/api/v3/repos/${pathname}`;
+    }
+
+    return `https://api.${host}/repos/${pathname}`;
+};
+
 (async () => {
     try {
         const repoUrls = core.getInput("repoUrls").split(",");
-        console.info(`Processing repositories: ${repoUrls.join(", ")}`);
         let allPRs = [];
 
         for (const repoUrl of repoUrls) {
-            const BASE_API_URL = `https://api.github.com/repos/${repoUrl.replace("https://github.com/", "")}`;
+            const BASE_API_URL = refineToApiUrl(core.getInput("repoUrl"));
             core.info(`Fetching PRs for: ${BASE_API_URL}`);
 
             // PR 목록 가져오기
