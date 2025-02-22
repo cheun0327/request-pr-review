@@ -33,6 +33,13 @@ const createRequestPRData = (prs) => {
     return {
         text: "👋 좋은 아침입니다!\n🙏 리뷰를 애타게 기다리는 동료의 PR이 있어요. 리뷰에 참여해 주세요:",
         blocks: [
+            {
+                type: "section", // ✅ 이 블록을 추가하여 텍스트를 강제로 출력
+                text: {
+                    type: "mrkdwn",
+                    text: "👋 좋은 아침입니다!\n🙏 리뷰를 애타게 기다리는 동료의 PR이 있어요. 리뷰에 참여해 주세요:"
+                }
+            },
             ...[...repoGroups.entries()].flatMap(([repo, prList]) => [
                 {
                     type: "section",
@@ -46,7 +53,7 @@ const createRequestPRData = (prs) => {
                     text: {
                         type: "mrkdwn",
                         text: `• <${url}|${encodeText(title)}>${
-                            labels.some(({ name }) => name === D0) ? "\n\t☝️ 이 PR은 \`${D0}\`로 긴급한 PR입니다. 🚨 지금 바로 리뷰에 참여해 주세요. 🚨" : ""
+                            labels.some(({ name }) => name === D0) ? "\n\t☝️ PR은 \`${D0}\`로 긴급한 PR입니다. 🚨 지금 바로 리뷰에 참여해 주세요. 🚨" : ""
                         }`
                     }
                 }))
