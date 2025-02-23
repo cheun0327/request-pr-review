@@ -70,7 +70,7 @@ const sendSlack = async (data) => {
                 "Content-Type": "application/json"
             },
             url: "https://slack.com/api/chat.postMessage",
-            data: { channel: "#lucy-test", ...data }
+            data: { channel: core.getInput("slackChannel"), ...data }
         });
     } catch (error) {
         core.setFailed(`Slack API Error: ${error.message}`);
@@ -87,7 +87,7 @@ const refineToApiUrl = repoUrl => {
     try {
         // ✅ repoUrls를 개별 URL 배열로 변환
         const repoUrls = core.getInput("repoUrls").split(",").map(url => url.trim());
-        core.info(`Fetching PRs for: ${repoUrls.join(", ")}`);  // ✅ 디버깅용 로그 추가
+        core.info(`Fetching PRs for: ${repoUrls.join(", ")}`);
     
         let allPRs = [];
     
